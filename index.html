@@ -522,8 +522,8 @@ body { font-family: var(--font-sans); background: var(--color-bg); color: var(--
   <select id="voiceSelect" onchange="setVoice(this.value)"></select>
   <div class="speed-control">
     <label>Speed:</label>
-    <input type="range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.9" onchange="setSpeed(this.value)">
-    <span id="speedVal" style="font-size:12px;color:var(--color-text-muted);">0.9x</span>
+    <input type="range" id="speedRange" min="0.5" max="1.5" step="0.1" value="0.85" onchange="setSpeed(this.value)">
+    <span id="speedVal" style="font-size:12px;color:var(--color-text-muted);">0.85x</span>
   </div>
 </div>
 <div class="categories" id="categories"></div>
@@ -900,7 +900,7 @@ function toggleRead(index, e) {
 let currentUtterance = null;
 let isSpeaking = false;
 let selectedVoice = null;
-let speechRate = 0.9;
+let speechRate = 0.85;
 
 function populateVoices() {
   const voices = speechSynthesis.getVoices();
@@ -924,28 +924,52 @@ function populateVoices() {
 function setVoice(index) {
   const voices = speechSynthesis.getVoices();
   selectedVoice = voices[index] || null;
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
 
 function setSpeed(val) {
   speechRate = parseFloat(val);
   document.getElementById('speedVal').textContent = val + 'x';
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
+
+let currentBookIndex = -1;
 
 function speakBook(index) {
   const book = books[index];
   
-  if (isSpeaking) {
+  if (isSpeaking && currentBookIndex === index) {
     speechSynthesis.cancel();
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
     return;
   }
   
-  const text = book.title + ', by ' + book.author + '. . ' + book.summary + '. . Key takeaways. . ' + book.keyPoints.join('. . ');
+  // Stop any current speech before starting new
+  if (isSpeaking) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+  }
+  
+  currentBookIndex = index;
+  
+  const text = book.title + '... by ' + book.author + '.... ' + book.summary + '.... Key takeaways.... ' + book.keyPoints.map((p, i) => 'Point ' + (i+1) + '... ' + p).join('.... ');
   
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentUtterance.rate = speechRate;
-  currentUtterance.pitch = 1;
+  currentUtterance.pitch = 1.05;
+  currentUtterance.volume = 1;
   
   if (selectedVoice) {
     currentUtterance.voice = selectedVoice;
@@ -957,6 +981,7 @@ function speakBook(index) {
   
   currentUtterance.onend = function() {
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
   };
   
@@ -995,7 +1020,7 @@ function toggleFav(index, e) {
 let currentUtterance = null;
 let isSpeaking = false;
 let selectedVoice = null;
-let speechRate = 0.9;
+let speechRate = 0.85;
 
 function populateVoices() {
   const voices = speechSynthesis.getVoices();
@@ -1019,28 +1044,52 @@ function populateVoices() {
 function setVoice(index) {
   const voices = speechSynthesis.getVoices();
   selectedVoice = voices[index] || null;
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
 
 function setSpeed(val) {
   speechRate = parseFloat(val);
   document.getElementById('speedVal').textContent = val + 'x';
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
+
+let currentBookIndex = -1;
 
 function speakBook(index) {
   const book = books[index];
   
-  if (isSpeaking) {
+  if (isSpeaking && currentBookIndex === index) {
     speechSynthesis.cancel();
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
     return;
   }
   
-  const text = book.title + ', by ' + book.author + '. . ' + book.summary + '. . Key takeaways. . ' + book.keyPoints.join('. . ');
+  // Stop any current speech before starting new
+  if (isSpeaking) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+  }
+  
+  currentBookIndex = index;
+  
+  const text = book.title + '... by ' + book.author + '.... ' + book.summary + '.... Key takeaways.... ' + book.keyPoints.map((p, i) => 'Point ' + (i+1) + '... ' + p).join('.... ');
   
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentUtterance.rate = speechRate;
-  currentUtterance.pitch = 1;
+  currentUtterance.pitch = 1.05;
+  currentUtterance.volume = 1;
   
   if (selectedVoice) {
     currentUtterance.voice = selectedVoice;
@@ -1052,6 +1101,7 @@ function speakBook(index) {
   
   currentUtterance.onend = function() {
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
   };
   
@@ -1157,7 +1207,7 @@ function filterByCategory(cat, btn) {
 let currentUtterance = null;
 let isSpeaking = false;
 let selectedVoice = null;
-let speechRate = 0.9;
+let speechRate = 0.85;
 
 function populateVoices() {
   const voices = speechSynthesis.getVoices();
@@ -1181,28 +1231,52 @@ function populateVoices() {
 function setVoice(index) {
   const voices = speechSynthesis.getVoices();
   selectedVoice = voices[index] || null;
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
 
 function setSpeed(val) {
   speechRate = parseFloat(val);
   document.getElementById('speedVal').textContent = val + 'x';
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
+
+let currentBookIndex = -1;
 
 function speakBook(index) {
   const book = books[index];
   
-  if (isSpeaking) {
+  if (isSpeaking && currentBookIndex === index) {
     speechSynthesis.cancel();
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
     return;
   }
   
-  const text = book.title + ', by ' + book.author + '. . ' + book.summary + '. . Key takeaways. . ' + book.keyPoints.join('. . ');
+  // Stop any current speech before starting new
+  if (isSpeaking) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+  }
+  
+  currentBookIndex = index;
+  
+  const text = book.title + '... by ' + book.author + '.... ' + book.summary + '.... Key takeaways.... ' + book.keyPoints.map((p, i) => 'Point ' + (i+1) + '... ' + p).join('.... ');
   
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentUtterance.rate = speechRate;
-  currentUtterance.pitch = 1;
+  currentUtterance.pitch = 1.05;
+  currentUtterance.volume = 1;
   
   if (selectedVoice) {
     currentUtterance.voice = selectedVoice;
@@ -1214,6 +1288,7 @@ function speakBook(index) {
   
   currentUtterance.onend = function() {
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
   };
   
@@ -1286,7 +1361,7 @@ function closeModal() { document.getElementById('modal').classList.remove('activ
 let currentUtterance = null;
 let isSpeaking = false;
 let selectedVoice = null;
-let speechRate = 0.9;
+let speechRate = 0.85;
 
 function populateVoices() {
   const voices = speechSynthesis.getVoices();
@@ -1310,28 +1385,52 @@ function populateVoices() {
 function setVoice(index) {
   const voices = speechSynthesis.getVoices();
   selectedVoice = voices[index] || null;
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
 
 function setSpeed(val) {
   speechRate = parseFloat(val);
   document.getElementById('speedVal').textContent = val + 'x';
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
+
+let currentBookIndex = -1;
 
 function speakBook(index) {
   const book = books[index];
   
-  if (isSpeaking) {
+  if (isSpeaking && currentBookIndex === index) {
     speechSynthesis.cancel();
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
     return;
   }
   
-  const text = book.title + ', by ' + book.author + '. . ' + book.summary + '. . Key takeaways. . ' + book.keyPoints.join('. . ');
+  // Stop any current speech before starting new
+  if (isSpeaking) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+  }
+  
+  currentBookIndex = index;
+  
+  const text = book.title + '... by ' + book.author + '.... ' + book.summary + '.... Key takeaways.... ' + book.keyPoints.map((p, i) => 'Point ' + (i+1) + '... ' + p).join('.... ');
   
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentUtterance.rate = speechRate;
-  currentUtterance.pitch = 1;
+  currentUtterance.pitch = 1.05;
+  currentUtterance.volume = 1;
   
   if (selectedVoice) {
     currentUtterance.voice = selectedVoice;
@@ -1343,6 +1442,7 @@ function speakBook(index) {
   
   currentUtterance.onend = function() {
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
   };
   
@@ -1376,7 +1476,7 @@ document.getElementById('modal').addEventListener('click', function(e) { if(e.ta
 let currentUtterance = null;
 let isSpeaking = false;
 let selectedVoice = null;
-let speechRate = 0.9;
+let speechRate = 0.85;
 
 function populateVoices() {
   const voices = speechSynthesis.getVoices();
@@ -1400,28 +1500,52 @@ function populateVoices() {
 function setVoice(index) {
   const voices = speechSynthesis.getVoices();
   selectedVoice = voices[index] || null;
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
 
 function setSpeed(val) {
   speechRate = parseFloat(val);
   document.getElementById('speedVal').textContent = val + 'x';
+  // Apply immediately if currently speaking
+  if (isSpeaking && currentBookIndex >= 0) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+    speakBook(currentBookIndex);
+  }
 }
+
+let currentBookIndex = -1;
 
 function speakBook(index) {
   const book = books[index];
   
-  if (isSpeaking) {
+  if (isSpeaking && currentBookIndex === index) {
     speechSynthesis.cancel();
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
     return;
   }
   
-  const text = book.title + ', by ' + book.author + '. . ' + book.summary + '. . Key takeaways. . ' + book.keyPoints.join('. . ');
+  // Stop any current speech before starting new
+  if (isSpeaking) {
+    speechSynthesis.cancel();
+    isSpeaking = false;
+  }
+  
+  currentBookIndex = index;
+  
+  const text = book.title + '... by ' + book.author + '.... ' + book.summary + '.... Key takeaways.... ' + book.keyPoints.map((p, i) => 'Point ' + (i+1) + '... ' + p).join('.... ');
   
   currentUtterance = new SpeechSynthesisUtterance(text);
   currentUtterance.rate = speechRate;
-  currentUtterance.pitch = 1;
+  currentUtterance.pitch = 1.05;
+  currentUtterance.volume = 1;
   
   if (selectedVoice) {
     currentUtterance.voice = selectedVoice;
@@ -1433,6 +1557,7 @@ function speakBook(index) {
   
   currentUtterance.onend = function() {
     isSpeaking = false;
+    currentBookIndex = -1;
     updateSpeakButtons();
   };
   
